@@ -30,7 +30,7 @@ public class Replica {
             directory.mkdir();
         }
 
-        processReadLast(queueName);
+//        processReadLast();
 
         // Établir une connexion à RabbitMQ
         ConnectionFactory factory = new ConnectionFactory();
@@ -57,7 +57,7 @@ public class Replica {
             System.out.println(" [x] Received '" + message + "'");
             if (message.equals("Read Last")) {
                 try {
-                    processReadLast(message);
+                    processReadLast();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -91,16 +91,15 @@ public class Replica {
         }
     }
 
-    private static void processReadLast(String queueName) throws Exception {
+    private static void processReadLast() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
+        String message = "selem";
 
         try (Connection connection = factory.newConnection(); Channel channel = connection.createChannel()) {
             channel.exchangeDeclare("direct_read", BuiltinExchangeType.DIRECT);
-            channel.queueBind(queueName, "direct_read", "");
-
-//            channel.basic(EXCHANGE_READ, "reader_queue", null, message.getBytes("UTF-8"));
-//            System.out.println(" [x] Sent '" + "reader_queue" + "':'" + message + "  fqfqzfqzf '");
+            channel.basicPublish("direct_read", "reader_queue", null, message.getBytes("UTF-8"));
+            System.out.println(" [x] Sent '" + "reader_queue" + "':'" + message + "'");
 
         }
         System.out.println("Jeni read");

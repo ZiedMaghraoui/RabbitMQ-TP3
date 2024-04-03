@@ -6,6 +6,7 @@ import com.rabbitmq.client.ConnectionFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeoutException;
 
 public class ClientReader {
     private static final String QUEUE_NAME = "reader_queue";
@@ -13,17 +14,22 @@ public class ClientReader {
 
 
     public static void main(String[] argv) throws Exception {
+
         readLast();
         processRead();
 
     }
 
-    private static void processRead(Channel channel) throws IOException {
+    private static void processRead() throws IOException, TimeoutException {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost"); // Adresse du broker RabbitMQ
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
         // Declare a queue for receiving the responses
-        String queueName = channel.queueDeclare().getQueue();
-
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        channel.exchangeDeclare("direct_read", BuiltinExchangeType.DIRECT);
         // Bind the queue to the exchange
-        channel.queueBind(queueName, EXCHANGE_NAME, "");
+        channel.queueBind(QUEUE_NAME, "direct_read", "");
 
         System.out.println(" [Client reader] Waiting for messages. To exit press CTRL+C");
 
@@ -34,7 +40,7 @@ public class ClientReader {
         };
 
         // Consume messages from the queue
-        channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
+        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {
         });
     }
 
