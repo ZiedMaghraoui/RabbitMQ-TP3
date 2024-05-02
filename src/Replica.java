@@ -29,6 +29,7 @@ public class Replica {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
         channel.queueDeclare(queueName, false, false, false, null);
+        channel.queuePurge(queueName);
 
         channel.exchangeDeclare(ClientWriter.EXCHANGE_NAME, BuiltinExchangeType.FANOUT);
         channel.exchangeDeclare(ClientReader.EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
@@ -43,7 +44,7 @@ public class Replica {
             System.out.println(" [*] Received '" + message + "'");
             if (message.equals("Read Last")) {
                 try {
-                    String line = getLastLineOfFile(replicaDirectory + "/" + fileName);
+                    String line = getLastLineOfFile(replicaDirectory + "/" + fileName) + ":from "+ replicaNumber;
                     processReadLast(channel, line);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -58,7 +59,7 @@ public class Replica {
     }
 
     private static void processReadLast(Channel channel, String message) throws Exception {
-        channel.exchangeDeclare(ClientReader.EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
+//        channel.exchangeDeclare(ClientReader.EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
         channel.basicPublish(ClientReader.EXCHANGE_NAME, ClientReader.ROUTING_KEY, null, message.getBytes(StandardCharsets.UTF_8));
         System.out.println(" [*] Sent '" + message + "'");
     }
