@@ -44,8 +44,8 @@ public class Replica {
             System.out.println(" [*] Received '" + message + "'");
             if (message.equals("Read Last")) {
                 try {
-                    String line = getLastLineOfFile(replicaDirectory + "/" + fileName) + ":from "+ replicaNumber;
-                    processReadLast(channel, line);
+                    String line = getLastLineOfFile(replicaDirectory + "/" + fileName) ;
+                    getLinesOfFile(replicaDirectory + "/" + fileName,channel);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -88,6 +88,19 @@ public class Replica {
             }
         }
         return lastLine;
+    }
+
+    private static void getLinesOfFile(String filePath,Channel channel) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+
+                processReadLast(channel,line);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        //return lastLine;
     }
 
 }
