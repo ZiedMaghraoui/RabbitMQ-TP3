@@ -42,7 +42,7 @@ public class Replica {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
             System.out.println(" [*] Received '" + message + "'");
-            if (message.equals("Read Last")) {
+            if (message.equals("Read Last") || message.equals("Read All") ) {
                 try {
                     String line = getLastLineOfFile(replicaDirectory + "/" + fileName) ;
                     getLinesOfFile(replicaDirectory + "/" + fileName,channel);

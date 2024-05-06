@@ -37,10 +37,9 @@ public class ClientReaderV2 {
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            messagesList.add( message );
-
-            System.out.println(" [*] Received '" + message + "'");
-          //  System.out.println("message List:"+ messagesList);
+            if (!messagesList.contains(message)) {
+                messagesList.add( message );
+                System.out.println(" [*] Received '" + message + "'");}
             if(!(System.currentTimeMillis() - startTime < timeoutMillis))
                 if(messagesList.get(0).equals(messagesList.get(1)) ) 
                     System.out.println("The last message is: " + messagesList.get(0));
@@ -55,7 +54,10 @@ public class ClientReaderV2 {
         }
         System.out.println("Consuming stopped due to timeout or all messages consumed.");
         messagesList.sort(null);
-        System.out.println("The last message is: " + messagesList.get(messagesList.size()-1));
+
+        if(messagesList.size()==0) {
+            System.out.println("no messages yet");
+        }
         System.exit(0);
 
     }
