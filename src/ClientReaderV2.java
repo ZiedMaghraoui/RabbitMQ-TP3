@@ -15,8 +15,11 @@ public class ClientReaderV2 {
         try {
             Connection connection = factory.newConnection();
             Channel channel = connection.createChannel();
-            requestReadLast(channel);
+
+            requestReadAll(channel);
+
             processRead(channel);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -62,9 +65,9 @@ public class ClientReaderV2 {
 
     }
 
-    private static void requestReadLast(Channel channel) throws Exception {
+    private static void requestReadAll(Channel channel) throws Exception {
         channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
-        String message = "Read Last";
+        String message = "Read All";
         channel.basicPublish(EXCHANGE_NAME, Replica.ROUTING_KEY_READER , null, message.getBytes(StandardCharsets.UTF_8));
         System.out.println(" [*] Sent '" + message + "'");
     }
